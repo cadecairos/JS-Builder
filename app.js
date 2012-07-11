@@ -42,7 +42,6 @@ function getResponse( elems ) {
   var js = fs.readFileSync( __dirname + '/popcorn-js/popcorn.js', 'UTF-8' );
 
   types.forEach(function( type ) {
-    //console.log( "elems: ", elems, "type: ", type, " / ", elems[type] );
     var oneType = elems[ type ],
         data,
         pathName,
