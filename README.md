@@ -22,6 +22,7 @@ Possible query string parameters:
 * parsers
 * modules
 * effects
+* minified ( if set to anything other than 0, the code will be minified )
 
 > Multiple values for parameters should be separated by commas i.e. `foo=bar,baz` 
 

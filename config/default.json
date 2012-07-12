@@ -6,5 +6,6 @@
   "popcorn": {
     "types": [ "modules", "players", "effects", "parsers", "plugins" ],
     "path": "/popcorn-js/"
-  }
+  },
+  "responseHeader": "/*! This code was generated automatically using the Popcorn Dynamic Build Tool\n *Get it at www.github.com/cadecairos/PopcornDynamicBuildTool\n *This Source Code Form is subject to the terms of the MIT license\n *If a copy of the MIT license was not distributed with this file, you can\n *obtain one at https://github.com/mozilla/popcorn-js/blob/master/LICENSE */\n\n"
 }
