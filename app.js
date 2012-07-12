@@ -5,7 +5,7 @@ var http = require( 'http' ),
     path = require( 'path' ),
     jsp = require( 'uglify-js' ).parser,
     pro = require( 'uglify-js' ).uglify,
-    types = [ 'plugins', 'parsers', 'players', 'modules', 'effects' ],
+    types = [ 'modules', 'players', 'effects', 'parsers', 'plugins' ],
     port = 9001;
 
 function endRequest( res, data ) {
@@ -49,13 +49,14 @@ function getResponse( elems ) {
 
     if ( oneType ) {
       for ( i = oneType.length - 1; i >= 0; i-- ) {
-        
+
         pathName = __dirname + '/popcorn-js/' + type + '/' + oneType[i] + '/popcorn.' + oneType[i] + '.js';
         if ( path.existsSync( pathName ) ) {
-          
+
           data = fs.readFileSync( pathName, 'UTF-8' );
-          
+
           if ( data ) {
+
             js += data;
           }
         }
