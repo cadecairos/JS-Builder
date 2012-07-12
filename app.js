@@ -3,10 +3,13 @@ var http = require( 'http' ),
     qs = require( 'querystring' ),
     fs = require( 'fs' ),
     path = require( 'path' ),
+    conf = require( 'config' ),
     jsp = require( 'uglify-js' ).parser,
     pro = require( 'uglify-js' ).uglify,
-    types = [ 'modules', 'players', 'effects', 'parsers', 'plugins' ],
-    port = 9001;
+    types = conf.popcorn.types,
+    popcornPath = __dirname + conf.popcorn.path,
+    host = conf.server.bindIP,
+    port = conf.server.bindPort;
 
 function endRequest( res, data ) {
   res.writeHead( 200, { 'Content-Type': 'text/javascript' } );
@@ -39,7 +42,7 @@ function uglifyIt( code ) {
 
 function getResponse( elems ) {
 
-  var js = fs.readFileSync( __dirname + '/popcorn-js/popcorn.js', 'UTF-8' );
+  var js = fs.readFileSync( popcornPath +  'popcorn.js', 'UTF-8' );
 
   types.forEach(function( type ) {
     var oneType = elems[ type ],
@@ -50,7 +53,7 @@ function getResponse( elems ) {
     if ( oneType ) {
       for ( i = oneType.length - 1; i >= 0; i-- ) {
 
-        pathName = __dirname + '/popcorn-js/' + type + '/' + oneType[i] + '/popcorn.' + oneType[i] + '.js';
+        pathName = popcornPath + type + '/' + oneType[i] + '/popcorn.' + oneType[i] + '.js';
         if ( path.existsSync( pathName ) ) {
 
           data = fs.readFileSync( pathName, 'UTF-8' );
@@ -76,6 +79,6 @@ var server = http.createServer(function(req, res) {
 
 });
 
-server.listen( port );
+server.listen( port, host );
 
-console.log( 'server running at http://localhost:9001/' );
+console.log( 'server running at ' + host + ':' + port );

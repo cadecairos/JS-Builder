@@ -1,0 +1,10 @@
+{
+  "server": {
+    "bindIP": "127.0.0.1",
+    "bindPort": "9001"
+  },
+  "popcorn": {
+    "types": [ "modules", "players", "effects", "parsers", "plugins" ],
+    "path": "/popcorn-js/"
+  }
+}
