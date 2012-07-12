@@ -10,11 +10,22 @@ var http = require( 'http' ),
     conf = require( 'config' ),
     jsp = require( 'uglify-js' ).parser,
     pro = require( 'uglify-js' ).uglify,
+    equal = require( 'deep-equal' ),
+    exec = require( 'child_process' ).exec,
     types = conf.popcorn.types,
     popcornPath = __dirname + conf.popcorn.path,
     host = conf.server.bindIP,
     port = conf.server.bindPort,
-    errorMsg = 'There was an error building your script, check your query\'s syntax.\n';
+    errorMsg = 'There was an error building your script, check your query\'s syntax.\n',
+    popcornSHA;
+
+function updateSHA( cb ) {
+  exec( 'git show -s --pretty=format:%H', cb );
+}
+
+updateSHA(function( err, stdout, stderr ) {
+  popcornSHA = stdout;
+});
 
 function endRequest( res, data ) {
   if ( data ) {
@@ -86,6 +97,62 @@ function getResponse( elems ) {
   return js;
 }
 
+// cache related stuff
+var requestCache = (function() {
+
+  var cachedRequests = [];
+
+  compareRequests = function( a, b ) {
+
+    if ( a.sha !== popcornSHA ) {
+      return false;
+    }
+
+    if( !equal( a.request, b ) ) {
+      return false;
+    }
+
+    return true;
+  };
+
+  return {
+    add: function( requestObj, code ) {
+
+      newEntry = {
+        'sha': popcornSHA,
+        'request': requestObj,
+        'code': code,
+        'timestamp': Date.now()
+      };
+
+      cachedRequests.push( newEntry );
+    },
+    isCached: function( requestObj ) {
+      var req;
+      for ( var i = cachedRequests.length - 1; i >= 0; i-- ) {
+        req  = cachedRequests [ i ];
+        if ( compareRequests( req, requestObj ) ) {
+          return req.code;
+        };
+      };
+    },
+    cleanUp: function() {
+      console.log( 'cleaning up, updating popcorn SHA' );
+      updateSHA(function ( err, stdout, stdin ) {
+        popcornSHA = stdout;
+        var now = Date.now();
+        for ( var i = cachedRequests.length - 1; i >= 0; i-- ) {
+          var req = cachedRequests[i];
+          if ( ( ( now - req.timestamp ) > conf.server.cacheExpiry ) || req.sha !== popcornSHA ) {
+            console.log( 'removing entry' );
+            cachedRequests = cachedRequests.slice( i, i + 1 );
+          };
+        };
+      });
+    }
+  };
+})();
+
 var server = http.createServer(function(req, res) {
 
   var requestUrl,
@@ -99,24 +166,43 @@ var server = http.createServer(function(req, res) {
   parsedQuery = requestUrl && parseQuery( requestUrl.query );
 
   // Build the response Javascript
-  responseJS = parsedQuery && getResponse( parsedQuery );
+  if ( parsedQuery ) {
 
-  // app will minify code by default, but can also return unminified
-  // if 'minified=0' is in the query string
-  if ( !parsedQuery['minified'] || parsedQuery['minified'] !== "0" ) {
-    responseJS = uglifyIt( responseJS );
+    // check if cached
+    responseJS = requestCache.isCached( parsedQuery );
+
+    if ( !responseJS ) {
+
+      // was not cached
+      responseJS = getResponse( parsedQuery );
+
+      if ( responseJS ) {
+
+        // app will minify code by default, but can also return unminified
+        // if 'minified=0' is in the query string
+        if ( !parsedQuery[ 'minified' ] || parsedQuery[ 'minified' ] !== "0" ) {
+
+          responseJS = uglifyIt( responseJS );
+        }
+
+        // prepend the header
+        responseJS = conf.responseHeader + responseJS;
+
+        // add to cache
+        requestCache.add( parsedQuery, responseJS );
+      };
+    };
   }
-
-  // prepend the header
-  if ( responseJS ) {
-    responseJS = conf.responseHeader + responseJS;
-  };
 
   // Send a response to the requestee
   endRequest( res, responseJS );
 
 });
 
+setInterval( requestCache.cleanUp, conf.server.cleanupInterval );
+
 server.listen( port, host );
 
 console.log( 'server running at ' + host + ':' + port );
+console.log( 'cleanup is scheduled to run every ' + conf.server.cleanupInterval + ' milliseconds' );
+console.log( 'cache entries expire after ' + conf.server.cacheExpiry + ' milliseconds' );
