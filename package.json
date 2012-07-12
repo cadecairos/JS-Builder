@@ -9,6 +9,9 @@
       "email": "chris@chrisdecairos.ca"
     }
   ],
+  "scripts": {
+    "start": "node ./app.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/cadecairos/PopcornDynamicBuildTool.git"
@@ -18,7 +21,8 @@
     "shelljs": "0.0.x"
   },
   "license": "MIT",
-  "engine": {
+  "engines": {
     "node": ">=0.6"
-  }
+  },
+  "subdomain": "cade.pdbt"
 }
