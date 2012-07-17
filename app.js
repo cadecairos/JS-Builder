@@ -55,7 +55,9 @@ function endRequest( res, data ) {
   if ( data ) {
     res.writeHead( 200, {
       'Content-Type': 'text/javascript',
-      'Content-Length': data.length
+      'Content-Length': data.length,
+      'Access-Control-Allow-Origin': "*",
+      'Access-Control-Allow-Methods': "GET"
     });
     res.end( data, 'UTF-8' );
   } else {

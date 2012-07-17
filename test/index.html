@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Popcorn Dynamic Build Tool</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="text/javascript" src="gui.js"></script>
+</head>
+  <body>
+    <h2>Popcorn Dynamic Build Tool</h2>
+    <div>
+      This build tool uses a new node app I've developed. The app takes a query string and builds you a custom version of popcorn based on it.
+      <br /><br />
+      You can get the source for the node app <a href="//github.com/cadecairos/PopcornDynamicBuildTool" >here</a>.
+      <br /><br />
+      The app uses Uglify.js to minify code, and caches requests for up to 5 days, so that similar requests can be served faster.
+      <br /><br />
+      To use this tool, select the bits of popcorn you'd like, and also select if you want minified( Production ) code, or unminified ( Development ) code.
+      <br /><br />
+      when ready, click the getURL button to generate your link. The sample response area will be populated with the actual respose the app will give you ( and caches it, as a bonus :P ). You can now copy that link and use it in a script tag to always<strong>*</strong> get your desired build.
+      <br /><br />
+      <strong>
+        * This is just a TEST page, please do not use the generated links for anything, demo or production, as the endpoint for the app is not permanent.
+      </strong>
+    </div>
+    <div id="plugins">
+      <h3>Plugins:</h3>
+      <strong>
+        <input id="plugins-toggle-all" value="plugins" type="checkbox" > Select All
+      </strong>
+      <ul id="plugin-list">
+        <li><input type="checkbox" value="footnote"> footnote</li>
+        <li><input type="checkbox" value="googlemap"> googlemap:</li>
+        <li><input type="checkbox" value="code"> code</li>
+        <li><input type="checkbox" value="attribution"> attribution</li>
+        <li><input type="checkbox" value="documentcloud"> documentcloud</li>
+        <li><input type="checkbox" value="facebook"> facebook</li>
+        <li><input type="checkbox" value="flickr"> flickr</li>
+        <li><input type="checkbox" value="googlefeed"> googlefeed</li>
+        <li><input type="checkbox" value="image"> image</li>
+        <li><input type="checkbox" value="lastfm"> lastfm</li>
+        <li><input type="checkbox" value="linkedin"> linkedin</li>
+        <li><input type="checkbox" value="lowerthird"> lowerthird</li>
+        <li><input type="checkbox" value="mediaspawner"> mediaspawner</li>
+        <li><input type="checkbox" value="mustache"> mustache</li>
+        <li><input type="checkbox" value="openmap"> openmap</li>
+        <li><input type="checkbox" value="pause"> pause</li>
+        <li><input type="checkbox" value="processing"> processing</li>
+        <li><input type="checkbox" value="rdio"> rdio</li>
+        <li><input type="checkbox" value="subtitle"> subtitle</li>
+        <li><input type="checkbox" value="tagthisperson"> tagthisperson</li>
+        <li><input type="checkbox" value="text"> text</li>
+        <li><input type="checkbox" value="timeline"> timeline</li>
+        <li><input type="checkbox" value="tumblr"> tumblr</li>
+        <li><input type="checkbox" value="twitter"> twitter</li>
+        <li><input type="checkbox" value="webpage"> webpage</li>
+        <li><input type="checkbox" value="wikipedia"> wikipedia</li>
+        <li><input type="checkbox" value="wordriver"> wordriver</li>
+      </ul>
+    </div>
+    <br />
+    <div id="players">
+      <h3>Players:</h3>
+      <strong>
+        <input id="players-toggle-all" value="players" type="checkbox" > Select All
+      </strong>
+      <ul id="player-list">
+        <li><input type="checkbox" value="youtube"> youtube</li>
+        <li><input type="checkbox" value="vimeo"> vimeo</li>
+        <li><input type="checkbox" value="soundcloud"> soundcloud</li>
+      </ul>
+    </div>
+    <br />
+    <div id="modules">
+      <h3>Modules:</h3>
+      <strong>
+        <input id="modules-toggle-all" value="modules" type="checkbox" > Select All
+      </strong>
+      <ul id="module-list">
+        <li><input type="checkbox" value="player"> player</li>
+        <li><input type="checkbox" value="parser"> parser</li>
+        <li><input type="checkbox" value="locale"> locale</li>
+        <li><input type="checkbox" value="timeline-sources"> timeline-sources</li>
+      </ul>
+    </div>
+    <br />
+    <div id="parsers">
+      <h3>Parsers:</h3>
+      <strong>
+        <input id="parsers-toggle-all" value="parsers" type="checkbox" > Select All
+      </strong>
+      <ul id="parser-list">
+        <li><input type="checkbox" value="parserJSON"> parserJSON</li>
+        <li><input type="checkbox" value="parserSSA"> parserSSA</li>
+        <li><input type="checkbox" value="parserSBV"> parserSBV</li>
+        <li><input type="checkbox" value="parserSRT"> parserSRT</li>
+        <li><input type="checkbox" value="parserTTML"> parserTTML</li>
+        <li><input type="checkbox" value="parserTTXT"> parserTTXT</li>
+        <li><input type="checkbox" value="parserVTT"> parserVTT</li>
+        <li><input type="checkbox" value="parserXML"> parserXML</li>
+      </ul>
+    </div>
+    <br />
+    <div id="effects">
+      <h3>Effects:</h3>
+      <ul id="effect-list">
+        <li><input type="checkbox" value="applyclass"> applyclass</li>
+      </ul>
+    </div>
+    <br />
+    <div>
+      <h3>Other:</h3>
+      <ul>
+        <li><input type="checkbox" value="minified=0"> unminified</li>
+      </ul>
+    </div>
+    <br />
+    <div id="output">
+      <input type="button" value="get URL">
+      <input type="textbox" readonly="false" >
+      <br />
+      <h3>Sample Response:</h3>
+      <br />
+      <textarea readonly="true"></textarea>
+    </div>
+  </body>
+</html>	
