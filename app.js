@@ -138,12 +138,14 @@ function cleanUp() {
   console.log( 'cleaning up, updating popcorn SHA' );
   updateSHA(function ( err, stdout, stdin ) {
     popcornSHA = stdout;
-    CachedRequestModel.where( 'timestamp' ).lt( Date.now() - conf.db.cacheExpiry ).find().remove(function( err, num ) {
-      if ( err ) {
-        console.error( 'There was an error deleteing cached requests: ' + err );
-      }
-      console.log( "Cleaned up " + num + "expired entries" );
-    });
+    if ( canCacheRequests ) {
+      CachedRequestModel.where( 'timestamp' ).lt( Date.now() - conf.db.cacheExpiry ).find().remove(function( err, num ) {
+        if ( err ) {
+          console.error( 'There was an error deleteing cached requests: ' + err );
+        }
+        console.log( "Cleaned up " + num + "expired entries" );
+      });
+    }
   });
 }
 
@@ -174,38 +176,44 @@ var server = http.createServer(function(req, res) {
     'effects': parsedQuery.effects || []
   };
 
-  // check if cached
-  CachedRequestModel.findOne( mongoQuery, function( err, doc ) {
-    if ( err === null && doc === null ) {
-      // was not cached
-      responseJS = getResponse( parsedQuery );
+  if ( canCacheRequests ) {;
+    // check if cached
+    CachedRequestModel.findOne( mongoQuery, function( err, doc ) {
+      if ( err === null && doc === null ) {
+        // was not cached
+        responseJS = getResponse( parsedQuery );
 
-      mongoQuery.sha = popcornSHA;
-      mongoQuery.code = responseJS;
-      mongoQuery.timestamp = Date.now();
+        mongoQuery.sha = popcornSHA;
+        mongoQuery.code = responseJS;
+        mongoQuery.timestamp = Date.now();
 
-      doc = new CachedRequestModel( mongoQuery );
+        doc = new CachedRequestModel( mongoQuery );
 
-      doc.save( function( err ) {
+        doc.save( function( err ) {
 
-        if ( err ) {
-          console.error( err );
-        }
-      });
+          if ( err ) {
+            console.error( err );
+          }
+        });
 
-      endRequest( res, responseJS );
-      return;
-    }
+        endRequest( res, responseJS );
+        return;
+      }
 
-    if ( err ) {
-      console.log( err );
-      return;
-    };
+      if ( err ) {
+        console.log( err );
+        return;
+      };
 
-    // Send a response to the requestee
-    endRequest( res, doc.code );
+      // Send a response to the requestee
+      endRequest( res, doc.code );
 
-  });
+    });
+  } else {
+
+    responseJS = getResponse( parsedQuery );
+    endRequest( res, responseJS );
+  }
 });
 
 setInterval( cleanUp, conf.server.cleanupInterval );
