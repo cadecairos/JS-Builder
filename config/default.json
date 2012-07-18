@@ -2,12 +2,12 @@
   "server": {
     "bindIP": "127.0.0.1",
     "bindPort": "9001",
-    "cleanupInterval": 86400000,
-    "cacheExpiry": 432000000
+    "cleanupInterval": 86400000
   },
   "db": {
     "host": "mongodb://localhost/",
-    "databaseName": "pdbt"
+    "databaseName": "pdbt",
+    "cacheExpiry": 432000000
   },
   "popcorn": {
     "types": [ "modules", "players", "effects", "parsers", "plugins" ],

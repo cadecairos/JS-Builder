@@ -2,9 +2,7 @@
  * If a copy of the MIT license was not distributed with this file, you can
  * obtain one at http://www.github.com/cadecairos/PopcornDynamicBuildTool/blob/master/LICENSE */
 
-var express = require( 'express' ),
-    http = require( 'http' ),
-    MongoStore = require( 'connect-mongo' )( express ),
+var http = require( 'http' ),
     mongoose = require( 'mongoose' ),
     url = require( 'url' ),
     qs = require( 'querystring' ),
@@ -26,22 +24,19 @@ var express = require( 'express' ),
 
     db = mongoose.connect( conf.db.host + conf.db.databaseName, function( error ) { 
       if ( error ) {
-        console.log( 'MongoDB: ' + error + '\n Request caching will not work' );
+        console.error( 'MongoDB: ' + error + '\n Request caching will not work' );
         canCacheRequests = false;
       }
     }),
 
     CachedRequest = new Schema({
       'sha': String,
-      'request': {
-        'empty': String,
-        'minified': String,
-        'plugins': [String],
-        'players': [String],
-        'parsers': [String],
-        'modules': [String],
-        'effects': [String]
-      },
+      'minified': String,
+      'plugins': [String],
+      'players': [String],
+      'parsers': [String],
+      'modules': [String],
+      'effects': [String],
       'code': String,
       'timestamp': Number
     }),
@@ -74,7 +69,7 @@ function endRequest( res, data ) {
 }
 
 function parseUrl( aUrl ) {
-    return parsed = url.parse( aUrl );
+  return parsed = url.parse( aUrl );
 }
 
 function parseQuery( query ){
@@ -141,14 +136,12 @@ function cleanUp() {
   console.log( 'cleaning up, updating popcorn SHA' );
   updateSHA(function ( err, stdout, stdin ) {
     popcornSHA = stdout;
-    /*var now = Date.now();
-    for ( var i = cachedRequests.length - 1; i >= 0; i-- ) {
-      var req = cachedRequests[i];
-      if ( ( ( now - req.timestamp ) > conf.server.cacheExpiry ) || req.sha !== popcornSHA ) {
-        console.log( 'removing entry' );
-        cachedRequests = cachedRequests.slice( i, i + 1 );
-      };
-    };*/
+    CachedRequestModel.where( 'timestamp' ).lt( Date.now() - conf.db.cacheExpiry ).find().remove(function( err, num ) {
+      if ( err ) {
+        console.error( 'There was an error deleteing cached requests: ' + err );
+      }
+      console.log( "Cleaned up " + num + "expired entries" );
+    });
   });
 }
 
@@ -156,7 +149,8 @@ var server = http.createServer(function(req, res) {
 
   var requestUrl,
       parsedQuery,
-      responseJS;
+      responseJS,
+      mongoQuery;
 
   // Parse the request URL
   requestUrl = parseUrl( req.url );
@@ -169,35 +163,41 @@ var server = http.createServer(function(req, res) {
     return
   }
 
-  if ( equal( parsedQuery, {} ) ) {
-    parsedQuery[ "empty" ] = "1";
+  mongoQuery = {
+    'minified': parsedQuery.minified || '',
+    'plugins': parsedQuery.plugins || [],
+    'parsers': parsedQuery.parsers || [],
+    'players': parsedQuery.players || [],
+    'modules': parsedQuery.modules || [],
+    'effects': parsedQuery.effects || []
   };
+
   // check if cached
-  CachedRequestModel.findOne( { 'request': parsedQuery }, function( err, doc ) {
-console.log( err, doc, parsedQuery );
+  CachedRequestModel.findOne( mongoQuery, function( err, doc ) {
     if ( err === null && doc === null ) {
       // was not cached
-      console.log( 'not Cached' );
       responseJS = getResponse( parsedQuery );
 
-      doc = new CachedRequestModel({
-        'sha': popcornSHA,
-        'request': parsedQuery,
-        'code': responseJS,
-        'timestamp': Date.now()
-      });
+      mongoQuery.sha = popcornSHA;
+      mongoQuery.code = responseJS;
+      mongoQuery.timestamp = Date.now();
+
+      doc = new CachedRequestModel( mongoQuery );
+
       doc.save( function( err ) {
-        console.log("ASDF");
+
         if ( err ) {
-          console.log( err );
+          console.error( err );
         }
       });
 
       endRequest( res, responseJS );
+      return;
     }
 
     if ( err ) {
       console.log( err );
+      return;
     };
 
     // Send a response to the requestee
@@ -212,4 +212,4 @@ server.listen( port, host );
 
 console.log( 'server running at ' + host + ':' + port );
 console.log( 'cleanup is scheduled to run every ' + conf.server.cleanupInterval + ' milliseconds' );
-console.log( 'cache entries expire after ' + conf.server.cacheExpiry + ' milliseconds' );
+console.log( 'cache entries expire after ' + conf.db.cacheExpiry + ' milliseconds' );
