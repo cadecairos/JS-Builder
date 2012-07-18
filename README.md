@@ -1,15 +1,61 @@
 #Popcorn.js Dynamic Build Tool (pdbt)#
 
-Automagically create custom builds of Popcorn.js
+Automagically returns custom builds of Popcorn.js from HTTP GET Requests.
+
+Caching of requests is now available. This feature uses mongodb to store cached requests.
 
 ##Set Up##
 
 1. `git clone --recursive https://github.com/cadecairos/PopcornDynamicBuildTool.git`
 2. `cd PopcornDynamicBuildTool`
 3. `npm install`
+4. [install mongodb](http://www.mongodb.org/display/DOCS/Quickstart)
+
+##Preferences##
+
+Edit the `config/default.json` file to customize the following settings:
+
+####server.bindIP
+* IP address to start the server on
+* Defaults to `127.0.0.1`
+
+####server.bindPort
+* Port number that the server will listen on
+* Defaults to `9001`
+
+###server.cleanupInterval
+* Time in Milliseconds at which to check the database for expired requests
+* Defaults to `86400000` (about 1 day)
+
+###db.host
+* Host name or IP where mongodb is running
+* Defaults to `mongodb://localhost`
+
+###db.name
+* Name of the Database to store the cached requests
+* Defaults to `pdbt`
+
+###db.cacheExpiry
+* age in Milliseconds that requests expire
+* Defaults to `432000000` (about 5 days)
+
+###popcorn.types
+* Array of types of Popcorn add ons available to the build tool
+* Defaults to `[ "modules", "players", "effects", "parsers", "plugins" ]`
+
+###popcorn.path
+* Relative path to the popcorn repository ( provided as a submodule already) 
+    * *Expects a trailing slash*
+* Defaults to `/popcorn-js/`
+
+###responseHeader
+* A snippet of code returned on every request
+* not going to bother putting the default here.
 
 ##Running##
-1. `node make server`
+1. `sudo mongod`
+2. switch to new teminal
+3. `node make server`
 
 ##Use##
 
