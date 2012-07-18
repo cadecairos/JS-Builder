@@ -2,7 +2,10 @@
  * If a copy of the MIT license was not distributed with this file, you can
  * obtain one at http://www.github.com/cadecairos/PopcornDynamicBuildTool/blob/master/LICENSE */
 
-var http = require( 'http' ),
+var express = require( 'express' ),
+    http = require( 'http' ),
+    MongoStore = require( 'connect-mongo' )( express ),
+    mongoose = require( 'mongoose' ),
     url = require( 'url' ),
     qs = require( 'querystring' ),
     fs = require( 'fs' ),
@@ -17,7 +20,33 @@ var http = require( 'http' ),
     host = conf.server.bindIP,
     port = conf.server.bindPort,
     errorMsg = 'There was an error building your script, check your query\'s syntax.\n',
-    popcornSHA;
+    Schema = mongoose.Schema,
+    canCacheRequests = true,
+    popcornSHA,
+
+    db = mongoose.connect( conf.db.host + conf.db.databaseName, function( error ) { 
+      if ( error ) {
+        console.log( 'MongoDB: ' + error + '\n Request caching will not work' );
+        canCacheRequests = false;
+      }
+    }),
+
+    CachedRequest = new Schema({
+      'sha': String,
+      'request': {
+        'empty': String,
+        'minified': String,
+        'plugins': [String],
+        'players': [String],
+        'parsers': [String],
+        'modules': [String],
+        'effects': [String]
+      },
+      'code': String,
+      'timestamp': Number
+    }),
+
+    CachedRequestModel = mongoose.model( 'CachedRequest', CachedRequest );
 
 function updateSHA( cb ) {
   exec( 'git show -s --pretty=format:%H', cb );
@@ -94,64 +123,34 @@ function getResponse( elems ) {
       };
     }
   });
+
+  // app will minify code by default, but can also return unminified
+  // if 'minified=0' is in the query string
+  if ( !elems[ 'minified' ] || elems[ 'minified' ] !== "0" ) {
+
+    js = uglifyIt( js );
+  }
+
+  // prepend the header
+  js = conf.responseHeader + js;
+
   return js;
 }
 
-// cache related stuff
-var requestCache = (function() {
-
-  var cachedRequests = [];
-
-  compareRequests = function( a, b ) {
-
-    if ( a.sha !== popcornSHA ) {
-      return false;
-    }
-
-    if( !equal( a.request, b ) ) {
-      return false;
-    }
-
-    return true;
-  };
-
-  return {
-    add: function( requestObj, code ) {
-
-      newEntry = {
-        'sha': popcornSHA,
-        'request': requestObj,
-        'code': code,
-        'timestamp': Date.now()
+function cleanUp() {
+  console.log( 'cleaning up, updating popcorn SHA' );
+  updateSHA(function ( err, stdout, stdin ) {
+    popcornSHA = stdout;
+    /*var now = Date.now();
+    for ( var i = cachedRequests.length - 1; i >= 0; i-- ) {
+      var req = cachedRequests[i];
+      if ( ( ( now - req.timestamp ) > conf.server.cacheExpiry ) || req.sha !== popcornSHA ) {
+        console.log( 'removing entry' );
+        cachedRequests = cachedRequests.slice( i, i + 1 );
       };
-
-      cachedRequests.push( newEntry );
-    },
-    isCached: function( requestObj ) {
-      var req;
-      for ( var i = cachedRequests.length - 1; i >= 0; i-- ) {
-        req  = cachedRequests [ i ];
-        if ( compareRequests( req, requestObj ) ) {
-          return req.code;
-        };
-      };
-    },
-    cleanUp: function() {
-      console.log( 'cleaning up, updating popcorn SHA' );
-      updateSHA(function ( err, stdout, stdin ) {
-        popcornSHA = stdout;
-        var now = Date.now();
-        for ( var i = cachedRequests.length - 1; i >= 0; i-- ) {
-          var req = cachedRequests[i];
-          if ( ( ( now - req.timestamp ) > conf.server.cacheExpiry ) || req.sha !== popcornSHA ) {
-            console.log( 'removing entry' );
-            cachedRequests = cachedRequests.slice( i, i + 1 );
-          };
-        };
-      });
-    }
-  };
-})();
+    };*/
+  });
+}
 
 var server = http.createServer(function(req, res) {
 
@@ -166,40 +165,48 @@ var server = http.createServer(function(req, res) {
   parsedQuery = requestUrl && parseQuery( requestUrl.query );
 
   // Build the response Javascript
-  if ( parsedQuery ) {
-
-    // check if cached
-    responseJS = requestCache.isCached( parsedQuery );
-
-    if ( !responseJS ) {
-
-      // was not cached
-      responseJS = getResponse( parsedQuery );
-
-      if ( responseJS ) {
-
-        // app will minify code by default, but can also return unminified
-        // if 'minified=0' is in the query string
-        if ( !parsedQuery[ 'minified' ] || parsedQuery[ 'minified' ] !== "0" ) {
-
-          responseJS = uglifyIt( responseJS );
-        }
-
-        // prepend the header
-        responseJS = conf.responseHeader + responseJS;
-
-        // add to cache
-        requestCache.add( parsedQuery, responseJS );
-      };
-    };
+  if ( !parsedQuery ) {
+    return
   }
 
-  // Send a response to the requestee
-  endRequest( res, responseJS );
+  if ( equal( parsedQuery, {} ) ) {
+    parsedQuery[ "empty" ] = "1";
+  };
+  // check if cached
+  CachedRequestModel.findOne( { 'request': parsedQuery }, function( err, doc ) {
+console.log( err, doc, parsedQuery );
+    if ( err === null && doc === null ) {
+      // was not cached
+      console.log( 'not Cached' );
+      responseJS = getResponse( parsedQuery );
 
+      doc = new CachedRequestModel({
+        'sha': popcornSHA,
+        'request': parsedQuery,
+        'code': responseJS,
+        'timestamp': Date.now()
+      });
+      doc.save( function( err ) {
+        console.log("ASDF");
+        if ( err ) {
+          console.log( err );
+        }
+      });
+
+      endRequest( res, responseJS );
+    }
+
+    if ( err ) {
+      console.log( err );
+    };
+
+    // Send a response to the requestee
+    endRequest( res, doc.code );
+
+  });
 });
 
-setInterval( requestCache.cleanUp, conf.server.cleanupInterval );
+setInterval( cleanUp, conf.server.cleanupInterval );
 
 server.listen( port, host );
 

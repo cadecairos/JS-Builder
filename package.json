@@ -20,7 +20,10 @@
     "uglify-js": "1.3.x",
     "shelljs": "0.0.x",
     "config": "0.4.x",
-    "deep-equal": "x.x.x"
+    "deep-equal": "x.x.x",
+    "express": "2.5.x",
+    "mongoose": "2.5.x",
+    "connect-mongo": "0.1.x"
   },
   "license": "MIT",
   "engines": {
