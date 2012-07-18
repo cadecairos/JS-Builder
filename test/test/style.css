@@ -1,0 +1,16 @@
+ul {
+  list-style-type: none;
+}
+
+div#output, div#output input {
+  width: 90%;
+}
+
+div#output textarea {
+  width: 99%;
+  height: 200px;
+}
+
+div#output input[type=button] {
+  width: 9%;
+}
