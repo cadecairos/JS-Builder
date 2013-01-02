@@ -2,6 +2,8 @@
  * If a copy of the MIT license was not distributed with this file, you can
  * obtain one at http://www.github.com/cadecairos/PopcornDynamicBuildTool/blob/master/LICENSE */
 
+var SHA_REGEX = /[a-zA-Z1-9].*/;
+
 var http = require( 'http' ),
     mongoose = require( 'mongoose' ),
     url = require( 'url' ),
@@ -22,7 +24,7 @@ var http = require( 'http' ),
     canCacheRequests = true,
     popcornSHA,
 
-    db = mongoose.connect( conf.db.host + conf.db.databaseName, function( error ) { 
+    db = mongoose.connect( conf.db.host + conf.db.databaseName, function( error ) {
       if ( error ) {
         console.error( 'MongoDB: ' + error + '\n Request caching will not work' );
         canCacheRequests = false;
@@ -44,11 +46,11 @@ var http = require( 'http' ),
     CachedRequestModel = mongoose.model( 'CachedRequest', CachedRequest );
 
 function updateSHA( cb ) {
-  exec( 'git show -s --pretty=format:%H', cb );
+  exec( 'cd popcorn-js; git show -s --pretty=format:%H', cb );
 }
 
 updateSHA(function( err, stdout, stderr ) {
-  popcornSHA = stdout;
+  popcornSHA = stdout.replace( "\W$", "" ) ;
 });
 
 function endRequest( res, data ) {
@@ -137,13 +139,23 @@ function getResponse( elems ) {
 function cleanUp() {
   console.log( 'cleaning up, updating popcorn SHA' );
   updateSHA(function ( err, stdout, stdin ) {
-    popcornSHA = stdout;
+    popcornSHA = SHA_REGEX.exec( stdout )[ 0 ];
     if ( canCacheRequests ) {
       CachedRequestModel.where( 'timestamp' ).lt( Date.now() - conf.db.cacheExpiry ).find().remove(function( err, num ) {
         if ( err ) {
           console.error( 'There was an error deleteing cached requests: ' + err );
         }
-        console.log( "Cleaned up " + num + "expired entries" );
+        if ( num ) {
+          console.log( "Cleaned up " + num + " expired entries (time)" );
+        }
+      });
+      CachedRequestModel.where( 'sha' ).notEqualTo( popcornSHA ).find().remove(function( err, num ) {
+        if ( err ) {
+          console.error( 'There was an error deleteing cached requests: ' + err );
+        }
+        if ( num ) {
+          console.log( "Cleaned up " + num + " expired entries (old sha)" );
+        }
       });
     }
   });
