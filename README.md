@@ -44,13 +44,19 @@ Edit the `config/default.json` file to customize the following settings:
 * Defaults to `[ "modules", "players", "effects", "parsers", "plugins" ]`
 
 ###popcorn.path
-* Relative path to the popcorn repository ( provided as a submodule already) 
+* Relative path to the popcorn repository ( provided as a submodule already)
     * *Expects a trailing slash*
 * Defaults to `/popcorn-js/`
 
 ###responseHeader
 * A snippet of code returned on every request
-* not going to bother putting the default here.
+* default is:
+
+    /*! This code was generated automatically using the Popcorn Dynamic Build Tool
+     *Get it at www.github.com/cadecairos/PopcornDynamicBuildTool
+     *This Source Code Form is subject to the terms of the MIT license
+     *If a copy of the MIT license was not distributed with this file, you can
+     *obtain one at https://github.com/mozilla/popcorn-js/blob/master/LICENSE */
 
 ##Running##
 1. `sudo mongod`
@@ -70,7 +76,7 @@ Possible query string parameters:
 * effects
 * minified ( if set to anything other than 0, the code will be minified )
 
-> Multiple values for parameters should be separated by commas i.e. `foo=bar,baz` 
+> Multiple values for parameters should be separated by commas i.e. `foo=bar,baz`
 
 Requests should be structured like the following:
 
