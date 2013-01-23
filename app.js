@@ -22,6 +22,12 @@ var http = require( 'http' ),
     errorMsg = 'There was an error building your script, check your query\'s syntax.\n',
     Schema = mongoose.Schema,
     canCacheRequests = true,
+    demoHTMLPath = './demo/index.html',
+    demoJSPath = './demo/gui.js',
+    demoCSSPath = './demo/css/style.css',
+    demoHTML = fs.readFileSync( demoHTMLPath, "UTF-8" ),
+    demoJS = fs.readFileSync( demoJSPath, "UTF-8" ),
+    demoCSS = fs.readFileSync( demoCSSPath, "UTF-8" ),
     popcornSHA,
 
     db = mongoose.connect( conf.db.host + conf.db.databaseName, function( error ) {
@@ -163,13 +169,36 @@ function cleanUp() {
 
 var server = http.createServer(function(req, res) {
 
-  var requestUrl,
+  var requestUrl = parseUrl( req.url ),
+      path = requestUrl.pathname,
+      contentType,
+      data,
       parsedQuery,
       responseJS,
       mongoQuery;
 
-  // Parse the request URL
-  requestUrl = parseUrl( req.url );
+  if ( /^\/demo/.test( path ) ) {
+
+    if ( /gui\.js/.test( path ) ) {
+      contentType = 'text/javascript';
+      data = demoJS;
+    } else if ( /\/css\/style\.css/.test( path ) ) {
+      contentType =  'text/css';
+      data = demoCSS;
+    } else {
+      contentType = 'text/html';
+      data = demoHTML;
+    }
+
+    res.writeHead( 200, {
+      'Content-Type': contentType,
+      'Content-Length': data.length,
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET'
+    });
+
+    res.end( data, 'UTF-8' );
+  }
 
   // Parse the query string into an object
   parsedQuery = requestUrl && parseQuery( requestUrl.query );

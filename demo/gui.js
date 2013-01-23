@@ -7,7 +7,7 @@
   }
 
   document.addEventListener( "DOMContentLoaded", function() {
-    var checkboxes = { 
+    var checkboxes = {
           plugins: document.querySelectorAll( "ul#plugin-list input[type=checkbox]" ),
           players: document.querySelectorAll( "ul#player-list input[type=checkbox]" ),
           modules: document.querySelectorAll( "ul#module-list input[type=checkbox]" ),
@@ -19,7 +19,7 @@
         output = document.querySelector( "div#output input[type=textbox]" );
 
     makeButton.onclick = function generateURL() {
-      var link = "http://cade.pdbt.jit.su/?",
+      var link = location.protocol + "//" + location.host + "/?",
           type,
           oneType,
           linkpart = "",
@@ -49,6 +49,7 @@
 
       var req = new XMLHttpRequest();
       req.onreadystatechange = requestHandler;
+      console.log( link );
       req.open("GET", link, true);
       req.setRequestHeader("Accept", "*/*");
       req.send();
