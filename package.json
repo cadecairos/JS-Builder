@@ -11,7 +11,7 @@
     {
       "name": "Jon Buckley",
       "email": "jon@jbuckley.ca"
-    },
+    }
   ],
   "scripts": {
     "start": "node app.js"
