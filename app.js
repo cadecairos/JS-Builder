@@ -11,7 +11,7 @@ require( './routes' )( app, rc, uglify, CONFIG );
 
 var port = process.env.PORT || CONFIG.server.bindPort;
 
-var server = app.listen( port, CONFIG.server.bindIP, function() {
+var server = app.listen( port, function() {
   var addy = server.address();
   console.log( 'HTTP server started on http://' + CONFIG.server.bindIP + ':' + addy.port );
 });
