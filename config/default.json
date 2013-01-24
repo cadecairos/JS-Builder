@@ -1,13 +1,4 @@
 {
-  "server": {
-    "bindPort": "5000",
-    "cleanupInterval": 86400000
-  },
-  "db": {
-    "host": "mongodb://localhost/",
-    "databaseName": "pdbt",
-    "cacheExpiry": 432000000
-  },
   "javascript": {
     "core": "popcorn.js",
     "dirs": [ "modules", "players", "effects", "parsers", "plugins" ],
