@@ -5,7 +5,7 @@ var fs = require( 'fs' );
 
 module.exports = function routes( app, requestCache, uglify, CONFIG ) {
 
-  var jsPath = '../' + CONFIG.javascript.path,
+  var jsPath = CONFIG.javascript.path,
       core = CONFIG.javascript.core,
       dirs = CONFIG.javascript.dirs,
       prefix = CONFIG.javascript.prefix,

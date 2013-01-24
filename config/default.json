@@ -1,6 +1,5 @@
 {
   "server": {
-    "bindIP": "127.0.0.1",
     "bindPort": "5000",
     "cleanupInterval": 86400000
   },
