@@ -19,7 +19,7 @@
         output = document.querySelector( "div#output input[type=textbox]" );
 
     makeButton.onclick = function generateURL() {
-      var link = location.protocol + "//" + location.host + "/?",
+      var link = location.protocol + "//" + location.host + "/build?",
           type,
           oneType,
           linkpart = "",
