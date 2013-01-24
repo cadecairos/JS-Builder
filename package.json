@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "uglify-js": "~2.2.3",
-    "config": "0.4.x",
     "express": "~3.0.4"
   },
   "license": "MIT",
