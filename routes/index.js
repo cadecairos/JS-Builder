@@ -75,7 +75,7 @@ module.exports = function routes( app, CONFIG ) {
     }
   }
 
-  app.get( '/', function( req, res ) {
+  app.get( '/build', function( req, res ) {
     var parsedQuery = parseQuery( req.query ),
         responseJS = getResponse( parsedQuery );
 
