@@ -1,9 +1,9 @@
 'use strict'
 
-var fs = require( 'fs' );
+var fs = require( 'fs' ),
+    minify = require( 'uglify-js' ).minify;
 
-
-module.exports = function routes( app, requestCache, uglify, CONFIG ) {
+module.exports = function routes( app, CONFIG ) {
 
   var jsPath = CONFIG.javascript.path,
       core = CONFIG.javascript.core,
@@ -61,11 +61,9 @@ module.exports = function routes( app, requestCache, uglify, CONFIG ) {
       // app will minify code by default, but can also return unminified
       // if 'minified=0' is in the query string
       if ( !query[ 'minified' ] || query[ 'minified' ] !== "0" ) {
-
-        ast = uglify.jsp.parse( js );
-        ast = uglify.pro.ast_mangle( ast );
-        ast = uglify.pro.ast_squeeze( ast );
-        js = uglify.pro.gen_code( ast );
+        js = minify( js, {
+          fromString: true
+        }).code;
       }
 
       // prepend the header

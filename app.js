@@ -1,17 +1,11 @@
 'use strict';
 
 var express = require( 'express' ),
-    fs = require( 'fs' ),
     CONFIG = require( 'config' ),
-    rc = require( './lib/cache' ),
-    uglify = require( './lib/uglify' )(),
     app = express();
 
-require( './routes' )( app, rc, uglify, CONFIG );
+require( './routes' )( app, CONFIG );
 
-var port = process.env.PORT || CONFIG.server.bindPort;
-
-var server = app.listen( port, function() {
-  var addy = server.address();
-  console.log( 'HTTP server started on http://' + CONFIG.server.bindIP + ':' + addy.port );
-});
+var port = process.env.PORT || 5000;
+app.listen( port );
+console.log( 'HTTP server started on ' + addy.port );
