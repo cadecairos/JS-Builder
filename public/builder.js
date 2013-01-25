@@ -9,8 +9,8 @@
   document.addEventListener( "DOMContentLoaded", function() {
     var checkboxes = document.querySelectorAll( "li > label > input:not([value='minify'])" ),
         minified = document.querySelector( "input[value='minify']" ),
-        makeButton = document.querySelector( "input[type=button][value='get URL']" ),
-        output = document.querySelector( "input[type=textbox]" );
+        makeButton = document.querySelector( "button.btn" ),
+        output = document.querySelector( "input[type=text]" );
 
     makeButton.onclick = function generateURL() {
       var link = location.protocol + "//" + location.host + "/build?",
