@@ -6,8 +6,8 @@ var express = require( 'express' ),
     fs = require( 'fs' ),
     app = express(),
     rootJSPath = __dirname + '/' + conf.root + '/',
-    coreJS = fs.readFileSync( rootJSPath + conf.js.core.path, 'UTF-8' ),
-    licenceString = fs.readFileSync( './buildLicense', 'UTF-8' );
+    coreJS = fs.readFileSync( rootJSPath + conf.js.core.path ),
+    licenceString = fs.readFileSync( './buildLicense' );
 
 app.use( express.logger() );
 app.use( express.static( __dirname + '/public' ) );
@@ -24,10 +24,10 @@ function getResponse( query ) {
 
     if ( depends && !query[ depends ] && !loadedDeps[ depends ] ) {
       loadedDeps[ depends ] = '';
-      return getItem( conf.js[ depends ] ) + fs.readFileSync( rootJSPath + js.path, 'UTF-8' );
+      return getItem( conf.js[ depends ] ) + fs.readFileSync( rootJSPath + js.path );
     }
 
-    return fs.readFileSync( rootJSPath + js.path, 'UTF-8' );
+    return fs.readFileSync( rootJSPath + js.path );
   }
 
   try {
