@@ -22,7 +22,7 @@ for ( var item in conf.js ) {
   }
 }
 
-exec( 'cd ' + rootJSPath + '; git show -s --pretty=format:%h', function( err, stdout, stderr ) {
+exec( 'cd ' + conf.root + '; git show -s --pretty=format:%h', function( err, stdout, stderr ) {
   if ( err ) {
     repoLicense = repoLicense.replace( '@VERSION', Date.now() );
     return;
