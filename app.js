@@ -6,12 +6,20 @@ var express = require( 'express' ),
     fs = require( 'fs' ),
     app = express(),
     rootJSPath = __dirname + '/' + conf.root + '/',
-    coreJS = fs.readFileSync( rootJSPath + conf.js.core.path ),
-    licenceString = fs.readFileSync( './buildLicense' );
+    coreJS = fs.readFileSync( rootJSPath + conf.js.core.path, 'utf8' ),
+    licenceString = fs.readFileSync( './buildLicense', 'utf8' ),
+    fileArray = [];
+
+require( 'jade' );
 
 app.use( express.logger() );
 app.use( express.static( __dirname + '/public' ) );
 
+for ( var item in conf.js ) {
+  if ( item !== 'core' ) {
+    fileArray.push( item );
+  }
+}
 
 function getResponse( query ) {
   var configItem,
@@ -24,10 +32,10 @@ function getResponse( query ) {
 
     if ( depends && !query[ depends ] && !loadedDeps[ depends ] ) {
       loadedDeps[ depends ] = '';
-      return getItem( conf.js[ depends ] ) + fs.readFileSync( rootJSPath + js.path );
+      return getItem( conf.js[ depends ] ) + fs.readFileSync( rootJSPath + js.path, 'utf8' );
     }
 
-    return fs.readFileSync( rootJSPath + js.path );
+    return fs.readFileSync( rootJSPath + js.path, 'utf8' );
   }
 
   try {
@@ -48,6 +56,7 @@ function getResponse( query ) {
     }
 
     if ( minifyCode ) {
+      var p = minify( js, {fromString:true});
       return licenceString + minify( js, {
         fromString: true
       }).code;
@@ -58,6 +67,13 @@ function getResponse( query ) {
     return null;
   }
 }
+
+app.get( '/', function( req, res ) {
+  res.render( 'index.jade', {
+    library: conf.library,
+    files: fileArray
+  });
+});
 
 app.get( '/build', function( req, res ) {
 
