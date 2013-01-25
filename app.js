@@ -34,8 +34,14 @@ function getResponse( query ) {
 
     for( var item in query ) {
       configItem = conf.js[ item ];
-      if ( configItem && !loadedDeps[ item ] ) {
-        js += getItem( configItem );
+      if ( configItem ) {
+        if (  !loadedDeps[ item ] ) {
+          if ( configItem.shim ) {
+            js = getItem( configItem ) + js;
+          } else {
+            js += getItem( configItem );
+          }
+        }
       } else if ( item === 'minify' ) {
         minifyCode = true;
       }

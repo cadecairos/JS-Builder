@@ -8,6 +8,7 @@
       "path": "effects/applyclass/popcorn.applyclass.js"
     },
     "ie8": {
+      "shim": true,
       "path": "ie8/popcorn.ie8.js"
     },
     "locale": {
