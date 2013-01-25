@@ -1,8 +1,8 @@
 {
-  "name": "PopcornDynamicBuildTool",
+  "name": "JS-Builder",
   "version": "0.2.0",
   "author": "Christopher De Cairos",
-  "description": "Dynamically builds and minifies popcorn scripts",
+  "description": "Dynamically builds and minifies JavaScript",
   "contributors": [
     {
       "name": "Christopher De Cairos",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cadecairos/PopcornDynamicBuildTool.git"
+    "url": "https://github.com/cadecairos/JS-Builder.git"
   },
   "dependencies": {
     "uglify-js": "~2.2.3",

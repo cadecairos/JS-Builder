@@ -1,6 +1,7 @@
 {
   "library": "popcorn-js",
   "root": "popcorn-js",
+  "license": "LICENSE_HEADER",
   "js": {
     "core": {
       "path": "popcorn.js"

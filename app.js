@@ -4,10 +4,11 @@ var express = require( 'express' ),
     minify = require( 'uglify-js' ).minify,
     conf = require( './config.json' ),
     fs = require( 'fs' ),
+    exec = require( 'child_process' ).exec,
     app = express(),
     rootJSPath = __dirname + '/' + conf.root + '/',
     coreJS = fs.readFileSync( rootJSPath + conf.js.core.path, 'utf8' ),
-    licenceString = fs.readFileSync( './buildLicense', 'utf8' ),
+    repoLicense = conf.license ? fs.readFileSync( rootJSPath + conf.license, 'utf8' ) : '',
     fileArray = [];
 
 require( 'jade' );
@@ -20,6 +21,14 @@ for ( var item in conf.js ) {
     fileArray.push( item );
   }
 }
+
+exec( 'cd ' + rootJSPath + '; git show -s --pretty=format:%h', function( err, stdout, stderr ) {
+  if ( err ) {
+    repoLicense = repoLicense.replace( '@VERSION', Date.now() );
+    return;
+  }
+  repoLicense = repoLicense.replace( '@VERSION', stdout.replace( "\W$", "" ) );
+});
 
 function getResponse( query ) {
   var configItem,
@@ -57,12 +66,12 @@ function getResponse( query ) {
 
     if ( minifyCode ) {
       var p = minify( js, {fromString:true});
-      return licenceString + minify( js, {
+      return  repoLicense + minify( js, {
         fromString: true
       }).code;
     }
 
-    return licenceString + js;
+    return  repoLicense + js;
   } catch( e ) {
     return null;
   }

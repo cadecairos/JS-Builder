@@ -1,97 +1,79 @@
-#Popcorn.js Dynamic Build Tool (pdbt)#
+#JS Builder#
 
-Automagically returns custom builds of Popcorn.js from HTTP GET Requests.
-
-Caching of requests is now available. This feature uses mongodb to store cached requests.
+JS Builder is a Node.js app that returns custom builds of JavaScript projects via HTTP GET Requests. It uses [Uglify-js](https://github.com/mishoo/UglifyJS2) to compress and minify code.
 
 ##Set Up##
 
-1. `git clone --recursive https://github.com/cadecairos/PopcornDynamicBuildTool.git`
-2. `cd PopcornDynamicBuildTool`
+1. `git clone --recursive https://github.com/cadecairos/JS-Builder.git`
+2. `cd JS-Builder`
 3. `npm install`
-4. [install mongodb](http://www.mongodb.org/display/DOCS/Quickstart)
 
-##Preferences##
+##Customization##
 
-Edit the `config/default.json` file to customize the following settings:
+Clone the project you want to serve via JS-Builder into the root of the JS-Builder directory.
+Edit the `config.json` file to tell JS-Builder about your project and the files you wish to serve.
 
-####server.bindIP
-* IP address to start the server on
-* Defaults to `127.0.0.1`
+Here's a few examples ( note: JSON can not have comments, these are here for info only ):
 
-####server.bindPort
-* Port number that the server will listen on
-* Defaults to `9001`
+    {
+      // Name/Title of your library
+      "library": "Awesome-js",
 
-###server.cleanupInterval
-* Time in Milliseconds at which to check the database for expired requests
-* Defaults to `86400000` (about 1 day)
+      // Root folder of the library
+      "root": "Awesome-js",
 
-###db.host
-* Host name or IP where mongodb is running
-* Defaults to `mongodb://localhost`
+      // You can link to your licence header. It won't be minified and will be added to every build
+      // JS-Builder will replace @VERSION with the git commit SHA for the repo you're using.
+      "license": "path/to/LICENSE",
 
-###db.name
-* Name of the Database to store the cached requests
-* Defaults to `pdbt`
+      // List your js files under this
+      "js": {
 
-###db.cacheExpiry
-* age in Milliseconds that requests expire
-* Defaults to `432000000` (about 5 days)
+        // refer to the main("care") part of your library as core
+        "core": {
+          "path": "awesome.js"
+        },
 
-###popcorn.types
-* Array of types of Popcorn add ons available to the build tool
-* Defaults to `[ "modules", "players", "effects", "parsers", "plugins" ]`
+        // give your other files appropriate names
+        "awesomeModule": {
+          "path": "foo/bar/awesomeModule.js"
+        },
 
-###popcorn.path
-* Relative path to the popcorn repository ( provided as a submodule already)
-    * *Expects a trailing slash*
-* Defaults to `/popcorn-js/`
+        // You can specify a dependency for a file, ensuring that it's dependency is included
+        // before it. Dependencies are only added once, so we don't end up with duplicate includes.
+        "awesomePlugin": {
+          "depends": "awesomeModule",
+          "path": "foo/bar/plugins/awesomePlugin.js"
+        },
 
-###responseHeader
-* A snippet of code returned on every request
-* default is:
-
-    /*! This code was generated automatically using the Popcorn Dynamic Build Tool
-     *Get it at www.github.com/cadecairos/PopcornDynamicBuildTool
-     *This Source Code Form is subject to the terms of the MIT license
-     *If a copy of the MIT license was not distributed with this file, you can
-     *obtain one at https://github.com/mozilla/popcorn-js/blob/master/LICENSE */
+        // Have a file that needs to come before "core"? Give it a "shim" attribute
+        "garbageBrowserShim": {
+          "shim": true,
+          "path": "foo/shim.js"
+        }
+      }
+    }
 
 ##Running##
-1. `sudo mongod`
-2. switch to new teminal
-3. `node make server`
+run `node app.js` from a terminal
+
+By default JS-Builder binds to localhost and port 5000. The port can be changed by setting the PORT environment variable. It can also be deployed to [Heroku](http://www.heroku.com) with ease.
 
 ##Use##
 
-The build tool listens for requests on a port (this early release listens on port# 9001) for requests. When a request is recieved, the query string will be parsed and used to generate a custom build of popcorn, which is then minified using uglify.js.
+JS-Builder listens for requests at `//localhost:5000/build`. When a request is received, the query string will be parsed and used to generate a custom build of your library, which is optionally minified using uglify.js. The "core" file will always be included in a build.
 
-Possible query string parameters:
+The exact makeup of the query will vary depending on the title you give to each file in your project using `config.json`. Taking the example above, you could get:
 
-* plugins
-* players
-* parsers
-* modules
-* effects
-* minified ( if set to anything other than 0, the code will be minified )
+`//localhost:5000/build?awesomModule&garbageBrowserShim`
 
-> Multiple values for parameters should be separated by commas i.e. `foo=bar,baz`
+To minify the result, you could simply add a `minify` to the query:
 
-Requests should be structured like the following:
+`//localhost:5000/build?awesomModule&garbageBrowserShim&minify`
 
-* `http://localhost:9001/?plugins=footnote,subtitle,twitter`
-* `http://localhost:9001/?plugins=footnote,subtitle,twitter&players=youtube`
-* `http://localhost:9001/?parsers=parserSSA&plugins=wordriver&effects=applyclass`
+##JS-Builder UI##
 
-Or just about any combination you want.
+**under development**
 
-##Why is this useful?##
+Going to the root of the application (`//localhost:5000/`) will serve the sample UI included with JS-Builder. It automatically builds the UI based on `config.json`. The UI allows you to test out your builds.
 
-Soon, Popcorn users will be able to use the Build tool to generate a script URL like in the examples above. They can then drop that link in their HTML pages and the correct script will be returned every time!
-
-    <html>
-      <head>
-        <script type="text/javascript" src="http://someurl.org/popcorn-js/?plugins=footnote,subtitle,twitter&players=youtube" ></script>
-      </head>
-      <!-- rest of html -->
