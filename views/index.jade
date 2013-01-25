@@ -1,34 +1,42 @@
 !!! 5
-html
+html(lang="en")
   head
     meta(charset="utf-8")
     title JS Builder
-    link(rel="stylesheet", href="style.css")
-    script(type="text/javascript", src="builder.js")
+    link(rel="stylesheet", href="bootstrap/css/bootstrap.min.css", media="screen")
   body
-    h1 JS Builder Demo
-    h2= library
-    hr
-    div
-      strong
-        | The&nbsp;
-        =library
-        | &nbsp;core is included by default
-    br
-    for file in files
-      li
-        label(for=file)
-          input(type="checkbox", value=file, id=file)
-          = file
-    li
-      label(for="minify")
-        input(type="checkbox", value="minify", id="minify")
-        strong Minify
-    div#output
-      br
-      input(type="button", value="get URL")
-      input(type="textbox")
-      br
-      h3 Sample Response:
-      br
-      textarea(readonly="true")
+    div(class="container")
+      header
+        div(class="page-header")
+          h1(style="text-align:center;") JS Builder Demo -&nbsp;
+            = library
+      div(class="row")
+        div(class="span8 lead")
+          | The&nbsp;
+          =library
+          | &nbsp;core is included by default
+      div(class="row")
+        div(class="span12")
+          ul(class="unstyled")
+            for file in files
+              li
+                label(for=file, class="checkbox")
+                  input(type="checkbox", value=file, id=file)
+                  = file
+            li
+              label(for="minify", class="checkbox")
+                input(type="checkbox", value="minify", id="minify")
+                | Minify
+      div(class="row", id="output")
+        div(class="span12")
+          br
+          div(class="input-append")
+            button(class="btn", type="button") Get URL
+            input(class="span10", type="text")
+          br
+          h2 Preview:
+          br
+          textarea(readonly="true", class="input-block-level", rows="20")
+    script(type="text/javascript", src="builder.js")
+    script(type="text/javascript", src="http://code.jquery.com/jquery-latest.js")
+    script(type="text/javascript", src="bootstrap/js/bootstrap.min.js")

@@ -57,7 +57,8 @@ Here's a few examples ( note: JSON can not have comments, these are here for inf
 ##Running##
 run `node app.js` from a terminal
 
-By default JS-Builder binds to localhost and port 5000. The port can be changed by setting the PORT environment variable. It can also be deployed to [Heroku](http://www.heroku.com) with ease.
+By default JS-Builder binds to localhost and port 5000. The port can be changed by setting the PORT environment variable.
+It can also be deployed to [Heroku](http://www.heroku.com) with ease (just make sure to edit the `.slugignore` file to suit your needs)
 
 ##Use##
 
