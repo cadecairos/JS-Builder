@@ -1,5 +1,5 @@
 'use strict';
-console.log( __dirname );
+
 var express = require( 'express' ),
     minify = require( 'uglify-js' ).minify,
     conf = require( './config.json' ),
@@ -34,7 +34,6 @@ function getResponse( query ) {
 
     for( var item in query ) {
       configItem = conf.js[ item ];
-      console.log( configItem );
       if ( configItem && !loadedDeps[ item ] ) {
         js += getItem( configItem );
       } else if ( item === 'minify' ) {
@@ -50,7 +49,6 @@ function getResponse( query ) {
 
     return licenceString + js;
   } catch( e ) {
-    console.log( e );
     return null;
   }
 }
