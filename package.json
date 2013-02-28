@@ -23,7 +23,8 @@
   "dependencies": {
     "uglify-js": "~2.2.3",
     "express": "~3.0.4",
-    "jade": "~0.27.7"
+    "jade": "~0.27.7",
+    "newrelic": "~0.9.18"
   },
   "license": "MIT",
   "engines": {

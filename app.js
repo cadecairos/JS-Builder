@@ -1,5 +1,9 @@
 'use strict';
 
+if ( process.env.NEW_RELIC_NO_CONFIG_FILE && process.env.NEW_RELIC_LICENSE_KEY ) {
+  require( 'newrelic' );
+}
+
 var express = require( 'express' ),
     minify = require( 'uglify-js' ).minify,
     conf = require( './config.json' ),
