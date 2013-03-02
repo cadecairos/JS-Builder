@@ -1,8 +1,8 @@
 {
-  "library": "popcorn-js",
-  "root": "popcorn-js",
-  "license": "LICENSE_HEADER",
-  "js": {
+  "repo": "http://github.com/mozilla/popcorn-js.git",
+  "name": "popcorn-js",
+  "licenseFile": "LICENSE_HEADER",
+  "files": {
     "core": {
       "path": "popcorn.js"
     },

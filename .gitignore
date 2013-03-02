@@ -12,5 +12,6 @@ dist
 *.mp4
 *.wav
 *.mp3
+repo
 node_modules
 newrelic_agent.log
