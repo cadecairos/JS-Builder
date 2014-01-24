@@ -17,7 +17,7 @@ var express = require( 'express' ),
 
 require( 'jade' );
 
-app.use( express.logger() );
+app.use( express.logger( process.env.NODE_ENV === 'production' ? '' : 'dev' ) );
 app.use( express.static( __dirname + '/public' ) );
 
 for ( var item in conf.js ) {
