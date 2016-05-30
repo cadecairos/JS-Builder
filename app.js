@@ -1,10 +1,8 @@
 'use strict';
 
-if ( process.env.NEW_RELIC_NO_CONFIG_FILE && process.env.NEW_RELIC_LICENSE_KEY ) {
-  require( 'newrelic' );
-}
-
 var express = require( 'express' ),
+    morgan = require( 'morgan' ),
+    serveStatic = require( 'serve-static' ),
     minify = require( 'uglify-js' ).minify,
     conf = require( './config.json' ),
     fs = require( 'fs' ),
@@ -15,10 +13,10 @@ var express = require( 'express' ),
     repoLicense = conf.license ? fs.readFileSync( rootJSPath + conf.license, 'utf8' ) : '',
     fileArray = [];
 
-require( 'jade' );
+require( 'pug' );
 
-app.use( express.logger() );
-app.use( express.static( __dirname + '/public' ) );
+app.use( morgan( 'combined' ) );
+app.use( serveStatic( __dirname + '/public' ) );
 
 for ( var item in conf.js ) {
   if ( item !== 'core' ) {
@@ -82,7 +80,7 @@ function getResponse( query ) {
 }
 
 app.get( '/', function( req, res ) {
-  res.render( 'index.jade', {
+  res.render( 'index.pug', {
     library: conf.library,
     files: fileArray
   });
